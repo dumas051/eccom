@@ -5,7 +5,7 @@ import Order from "../models/Order";
 
 // Create a client to send and receive events
 export const inngest = new Inngest({ 
-  id: "KicksbyChrisp-next",
+  id: "eccom-next",
   // Add development mode for better debugging
   dev: process.env.NODE_ENV === 'development',
   // Add signing key for production

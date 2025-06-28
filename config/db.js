@@ -15,7 +15,7 @@ async function connectDB() {
             bufferCommands: false
         }
 
-        cached.promise = mongoose.connect(`${process.env.MONGODB_URI}/Kicks-by-Kicks`, opts).then((mongoose) => {
+        cached.promise = mongoose.connect(`${process.env.MONGODB_URI}/eccom`, opts).then((mongoose) => {
             return mongoose;
         });
     }
