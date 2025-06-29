@@ -1,22 +1,24 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { authMiddleware } from '@clerk/nextjs/server';
 
-const isProtectedRoute = createRouteMatcher([
-    '/seller(.*)',
-    '/cart(.*)',
-    '/my-orders(.*)',
-    '/add-address(.*)',
-    '/api/user(.*)',
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-    if (isProtectedRoute(req)) {
-        const user = await auth();
-        if (!user.userId) {
-            const url = new URL(req.url);
-            url.pathname = '/sign-in';
-            return Response.redirect(url);
-        }
-    }
+export default authMiddleware({
+  publicRoutes: [
+    '/',
+    '/all-products',
+    '/product/(.*)',
+    '/about-us',
+    '/contact',
+    '/track-order',
+    '/privacy-policy',
+    '/api/product/(.*)',
+    '/api/email/(.*)',
+    '/api/webhooks/(.*)',
+    '/api/test-(.*)',
+    '/api/debug-(.*)',
+    '/api/fix-(.*)',
+  ],
+  ignoredRoutes: [
+    '/api/webhooks/(.*)',
+  ],
 });
 
 export const config = {

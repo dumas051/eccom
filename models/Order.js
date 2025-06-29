@@ -19,8 +19,27 @@ const orderSchema = new mongoose.Schema({
             state: { type: String, required: true }
         },
         status: {type: String, required: true, default: 'Order Placed'},
-        date: {type: Number, required: true}
-
+        date: {type: Number, required: true},
+        paymentMethod: { type: String, required: true, default: 'COD' },
+        canCancel: { type: Boolean, default: true },
+        trackingNumber: { type: String },
+        estimatedDelivery: { type: Date },
+        trackingHistory: [{
+            status: { type: String, required: true },
+            description: { type: String, required: true },
+            timestamp: { type: Date, default: Date.now },
+            location: { type: String }
+        }],
+        returnRequest: {
+            status: { type: String, enum: ['None', 'Requested', 'Approved', 'Rejected', 'Refunded'], default: 'None' },
+            reason: String,
+            requestedAt: Date,
+            processedAt: Date,
+            message: String, // admin/seller notes
+            refundAmount: Number,
+            refundMethod: String, // e.g., 'Original Payment', 'Store Credit'
+            restocked: { type: Boolean, default: false }
+        },
 })
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema)

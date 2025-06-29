@@ -29,6 +29,8 @@ export async function POST(request) {
         const description = formData.get("description");
         const category = formData.get("category");
         const offerPrice = formData.get("offerPrice");
+        const stock = formData.get("stock");
+        const lowStockThreshold = formData.get("lowStockThreshold");
 
         const files = formData.getAll("images");
         
@@ -62,16 +64,31 @@ export async function POST(request) {
             url: item.secure_url,
         }));
 
+        // Determine stock status based on quantity
+        let stockStatus = 'Out of Stock';
+        if (stock > 0) {
+          if (stock <= (lowStockThreshold || 5)) {
+            stockStatus = 'Low Stock';
+          } else {
+            stockStatus = 'In Stock';
+          }
+        }
+
+        const productData = {
+          name,
+          description,
+          price: parseFloat(price),
+          offerPrice: parseFloat(offerPrice),
+          category,
+          stock: parseInt(stock) || 0,
+          lowStockThreshold: parseInt(lowStockThreshold) || 5,
+          stockStatus,
+          sellerId: userId,
+          images: images
+        };
+
         await connectDB()
-        const newProduct = await Product.create({
-            sellerId: userId,
-            name,
-            description,
-            price: Number(price),
-            offerPrice: Number(offerPrice),
-            images: images,
-            category,
-        })
+        const newProduct = await Product.create(productData)
 
         return NextResponse.json({ success: true, message: "Product added successfully", product: newProduct })
 

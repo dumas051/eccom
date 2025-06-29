@@ -1,4 +1,18 @@
 import logo from "./logo.svg";
+import logo1 from "./logo1.svg";
+import footer1 from "./footer1.png";
+import footer2 from "./footer2.png";
+import footer3 from "./footer3.png";
+import Mouse1 from "./Mouse1.png";
+import Mouse2 from "./Mouse2.png";
+import Mouse3 from "./Mouse3.png";
+import Mouse4 from "./Mouse4.png";
+import Mouse5 from "./Mouse5.png";
+import Mouse6 from "./Mouse6.png";
+import Keyboard1 from "./Keyboard1.png";
+import Keyboard2 from "./Keyboard2.png";
+import Keyboard3 from "./Keyboard3.png";
+import Keyboard4 from "./Keyboard4.png";
 import search_icon from "./search_icon.svg";
 import user_icon from "./user_icon.svg";
 import cart_icon from "./cart_icon.svg";
@@ -7,6 +21,7 @@ import order_icon from "./order_icon.svg";
 import instagram_icon from "./instagram_icon.svg";
 import facebook_icon from "./facebook_icon.svg";
 import twitter_icon from "./twitter_icon.svg";
+import youtube_icon from "./youtube_icon.svg";
 import box_icon from "./box_icon.svg";
 import product_list_icon from "./product_list_icon.svg";
 import menu_icon from "./menu_icon.svg";
@@ -49,6 +64,20 @@ import product_details_page_apple_earphone_image5 from "./product_details_page_a
 
 export const assets = {
   logo,
+  logo1,
+  footer1,
+  footer2,
+  footer3,
+  Mouse1,
+  Mouse2,
+  Mouse3,
+  Mouse4,
+  Mouse5,
+  Mouse6,
+  Keyboard1,
+  Keyboard2,
+  Keyboard3,
+  Keyboard4,
   search_icon,
   user_icon,
   cart_icon,
@@ -57,6 +86,7 @@ export const assets = {
   instagram_icon,
   facebook_icon,
   twitter_icon,
+  youtube_icon,
   box_icon,
   product_list_icon,
   menu_icon,
@@ -313,17 +343,24 @@ export const orderDummyData = [
       }
     ],
     "amount": 406.99,
-    "address": {
-      "_id": "67a1e4233f34a77b6dde9055",
-      "userId": "user_2sZFHS1UIIysJyDVzCpQhUhTIhw",
-      "fullName": "GreatStack",
-      "phone": "0123456789",
-      "pincode": 654321,
-      "area": "Main Road , 123 Street, G Block",
-      "city": "City",
-      "state": "State",
-      "__v": 0
-    },
+    "address": [
+      {
+        "fullName": "John Doe",
+        "phone": "1234567890",
+        "pincode": "654321",
+        "area": "123 Main St",
+        "city": "City",
+        "state": "State"
+      },
+      {
+        "fullName": "Jane Smith",
+        "phone": "0987654321",
+        "pincode": "654321",
+        "area": "456 Oak Ave",
+        "city": "City",
+        "state": "State"
+      }
+    ],
     "status": "Order Placed",
     "date": 1738672426822,
     "__v": 0
@@ -352,17 +389,24 @@ export const orderDummyData = [
       }
     ],
     "amount": 335.99,
-    "address": {
-      "_id": "67a1e4233f34a77b6dde9055",
-      "userId": "user_2sZFHS1UIIysJyDVzCpQhUhTIhw",
-      "fullName": "GreatStack",
-      "phone": "0123456789",
-      "pincode": 654321,
-      "area": "Main Road , 123 Street, G Block",
-      "city": "City",
-      "state": "State",
-      "__v": 0
-    },
+    "address": [
+      {
+        "fullName": "John Doe",
+        "phone": "1234567890",
+        "pincode": "654321",
+        "area": "123 Main St",
+        "city": "City",
+        "state": "State"
+      },
+      {
+        "fullName": "Jane Smith",
+        "phone": "0987654321",
+        "pincode": "654321",
+        "area": "456 Oak Ave",
+        "city": "City",
+        "state": "State"
+      }
+    ],
     "status": "Order Placed",
     "date": 1738672448031,
     "__v": 0
@@ -394,17 +438,16 @@ export const orderDummyData = [
       }
     ],
     "amount": 406.99,
-    "address": {
-      "_id": "67a1e4233f34a77b6dde9055",
-      "userId": "user_2sZFHS1UIIysJyDVzCpQhUhTIhw",
-      "fullName": "GreatStack",
-      "phone": "0123456789",
-      "pincode": 654321,
-      "area": "Main Road , 123 Street, G Block",
-      "city": "City",
-      "state": "State",
-      "__v": 0
-    },
+    "address": [
+      {
+        "fullName": "John Doe",
+        "phone": "1234567890",
+        "pincode": "654321",
+        "area": "123 Main St",
+        "city": "City",
+        "state": "State"
+      }
+    ],
     "status": "Order Placed",
     "date": 1738672560698,
     "__v": 0
@@ -417,7 +460,7 @@ export const addressDummyData = [
     "userId": "user_2sZFHS1UIIysJyDVzCpQhUhTIhw",
     "fullName": "GreatStack",
     "phone": "0123456789",
-    "pincode": 654321,
+    "pincode": "654321",
     "area": "Main Road , 123 Street, G Block",
     "city": "City",
     "state": "State",

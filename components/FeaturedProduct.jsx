@@ -5,25 +5,25 @@ import Image from "next/image";
 const products = [
   {
     id: 1,
-    image: assets.girl_with_headphone_image,
-    title: "Unparalleled Sound",
-    description: "Experience crystal-clear audio with premium headphones.",
+    image: assets.footer3,
+    title: "Experience precision and speed with the ThunderStrike RGB Gaming Mouse",
+    description: "High-precision optical sensor, enjoy lightning-fast tracking and responsiveness.",
   },
   {
     id: 2,
-    image: assets.girl_with_earphone_image,
-    title: "Stay Connected",
-    description: "Compact and stylish earphones for every occasion.",
+    image: assets.footer2,
+    title: "Illuminate Your Game with the Ultimate NeonPulse Gaming Keyboard",
+    description: "Experience the vibrant, tactile switches, and a durable design. Now only ₱699!",
   },
   {
     id: 3,
-    image: assets.boy_with_laptop_image,
-    title: "Power in Every Pixel",
-    description: "Shop the latest laptops for work, gaming, and more.",
+    image: assets.footer1,
+    title: "Elevate setup with the perfect blend of style and precision.",
+    description: "Shop the durable keys for precise and responsive performance.",
   },
 ];
 
-const FeaturedProduct = () => {
+const FeaturedProduct = () => {0
   return (
     <div className="mt-14">
       <div className="flex flex-col items-center">

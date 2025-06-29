@@ -16,7 +16,7 @@ const Product = () => {
 
     const { id } = useParams();
 
-    const { router, products, addToCart } = useAppContext()
+    const { router, products, addToCart, currency } = useAppContext()
 
     const [productData, setProductData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -99,9 +99,9 @@ const Product = () => {
                         {productData.description}
                     </p>
                     <p className="text-3xl font-medium mt-6">
-                        ${productData.offerPrice}
+                        {currency}{productData.offerPrice}
                         <span className="text-base font-normal text-gray-800/60 line-through ml-2">
-                            ${productData.price}
+                            {currency}{productData.price}
                         </span>
                     </p>
                     <hr className="bg-gray-600 my-6" />
@@ -120,6 +120,24 @@ const Product = () => {
                                     <td className="text-gray-600 font-medium">Category</td>
                                     <td className="text-gray-800/50">
                                         {productData.category}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="text-gray-600 font-medium">Stock Status</td>
+                                    <td className="text-gray-800/50">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            productData.stockStatus === 'In Stock' ? 'bg-green-100 text-green-800' :
+                                            productData.stockStatus === 'Low Stock' ? 'bg-yellow-100 text-yellow-800' :
+                                            'bg-red-100 text-red-800'
+                                        }`}>
+                                            {productData.stockStatus || 'Out of Stock'}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="text-gray-600 font-medium">Available Stock</td>
+                                    <td className="text-gray-800/50">
+                                        {productData.stock > 0 ? `${productData.stock} units` : 'Out of stock'}
                                     </td>
                                 </tr>
                             </tbody>

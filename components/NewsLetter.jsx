@@ -7,8 +7,7 @@ const NewsLetter = () => {
         Subscribe now & get 20% off
       </h1>
       <p className="md:text-base text-gray-500/80 pb-8">
-        Lorem Ipsum is simply dummy text of the printing and typesetting
-        industry.
+      The keyboard and mouse market encompasses a wide range of products, including wired, wireless, ergonomic, and gaming devices. It is a rapidly growing sector, driven by increasing demand for high-performance devices. With the rise of remote work and digital learning, there is a growing need for reliable and comfortable input devices.
       </p>
       <div className="flex items-center justify-between max-w-2xl w-full md:h-14 h-12">
         <input

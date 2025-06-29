@@ -37,45 +37,51 @@ export const AppContextProvider = (props) => {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             } catch (error) {
-                toast.error(error.message)
+                console.error('Error updating cart:', error);
+                toast.error(error.response?.data?.message || error.message || 'Failed to update cart')
             }
         }
     }
 
     const fetchUserAddresses = async () => {
+        if (!user) return;
+        
         try {
             const token = await getToken()
             const { data } = await axios.get('/api/user/get-address', {
                 headers: { Authorization: `Bearer ${token}` }
             })
             if (data.success) {
-                setUserAddresses(data.address)
+                setUserAddresses(data.address || [])
             } else {
-                toast.error(data.message)
+                toast.error(data.message || 'Failed to fetch addresses')
             }
         } catch (error) {
-            toast.error(error.message)
+            console.error('Error fetching addresses:', error);
+            toast.error(error.response?.data?.message || error.message || 'Failed to fetch addresses')
         }
     }
 
     const fetchProductData = async () => {
         try {
-            
-             const { data } = await axios.get('/api/product/list')
-             if (data.success) {
-                setProducts(data.products)
-             }else{
-                toast.error(data.message)
-             }
-
+            const { data } = await axios.get('/api/product/list')
+            if (data.success) {
+                setProducts(data.products || [])
+            } else {
+                toast.error(data.message || 'Failed to fetch products')
+            }
         } catch (error) {
-            toast.error(error.message)
+            console.error('Error fetching products:', error);
+            toast.error(error.response?.data?.message || error.message || 'Failed to fetch products')
         }
     }
 
     const fetchUserData = async () => {
+        if (!user) return;
+        
         try {
-            if (user.publicMetadata.role === 'seller') {
+            // Check if user has seller role
+            if (user.publicMetadata?.role === 'seller') {
                 setIsSeller(true)
             }
 
@@ -89,16 +95,21 @@ export const AppContextProvider = (props) => {
 
             if (data.success) {
                 setUserData(data.user)
-                setCartItems(data.user.cartItems)
+                setCartItems(data.user?.cartItems || {})
             } else {
-                toast.error(data.message)
+                toast.error(data.message || 'Failed to fetch user data')
             }
         } catch (error) {
-            toast.error(error.message)
+            console.error('Error fetching user data:', error);
+            toast.error(error.response?.data?.message || error.message || 'Failed to fetch user data')
         }
     }
 
     const addToCart = async (itemId) => {
+        if (!itemId) {
+            toast.error('Invalid product ID')
+            return;
+        }
 
         let cartData = structuredClone(cartItems);
         if (cartData[itemId]) {
@@ -113,6 +124,10 @@ export const AppContextProvider = (props) => {
     }
 
     const updateCartQuantity = async (itemId, quantity) => {
+        if (!itemId) {
+            toast.error('Invalid product ID')
+            return;
+        }
 
         let cartData = structuredClone(cartItems);
         if (quantity === 0) {
@@ -123,7 +138,6 @@ export const AppContextProvider = (props) => {
         }
         setCartItems(cartData);
         await updateCartInDB(cartData);
-
     }
 
     const getCartCount = () => {
@@ -142,7 +156,7 @@ export const AppContextProvider = (props) => {
             let itemInfo = products.find((product) => product._id === items);
             if (!itemInfo) continue;
             if (cartItems[items] > 0) {
-                totalAmount += itemInfo.offerPrice * cartItems[items];
+                totalAmount += (itemInfo.offerPrice || 0) * cartItems[items];
             }
         }
         return Math.floor(totalAmount * 100) / 100;

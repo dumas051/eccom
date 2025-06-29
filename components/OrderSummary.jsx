@@ -1,174 +1,147 @@
-import { addressDummyData } from "@/assets/assets";
+import React from "react";
 import { useAppContext } from "@/context/AppContext";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
 
-const OrderSummary = () => {
+const OrderSummary = ({ onOrderPlaced }) => {
+    const { userData, userAddresses, getCartAmount, getToken, router } = useAppContext();
+    const [selectedAddress, setSelectedAddress] = useState(null);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('COD');
+    const [loading, setLoading] = useState(false);
 
-  const { currency, router, getCartCount, getCartAmount, getToken, user, userAddresses, cartItems, setCartItems } = useAppContext()
-  const [selectedAddress, setSelectedAddress] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const fetchUserAddresses = async () => {
-    try {
-      const token = await getToken()
-      const { data } = await axios.get('/api/user/get-address', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      if (data.success) {
-        setUserAddresses(data.address)
-        if (data.address.length > 0) {
-          setSelectedAddress(data.address[0])
+    const handlePlaceOrder = async () => {
+        if (!selectedAddress) {
+            toast.error('Please select a delivery address');
+            return;
         }
-      }else{
-        toast.error(data.message)
-      }
-    } catch (error) {
-      toast.error(error.message)
-    } 
-  }
 
-  const handleAddressSelect = (address) => {
-    setSelectedAddress(address);
-    setIsDropdownOpen(false);
-  };
+        setLoading(true);
+        try {
+            const token = await getToken();
+            const { data } = await axios.post('/api/order/create', {
+                address: selectedAddress,
+                paymentMethod: paymentMethod
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-  const createOrder = async () => {
-    try {
-      if (!selectedAddress) {
-        return toast.error("Please select an address")
-      }
+            if (data.success) {
+                toast.success('Order placed successfully!');
+                onOrderPlaced(data.order);
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      let cartItemsArray = Object.keys(cartItems).map((key) => ({product:key, quantity:cartItems[key]}))
-      cartItemsArray = cartItemsArray.filter((item) => item.quantity > 0)
+    const formatAddress = (address) => {
+        return `${address.fullName}, ${address.area}, ${address.city}, ${address.state}`;
+    };
 
-      if (cartItemsArray.length === 0) {
-        return toast.error("No items in cart")
-      }
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
+            
+            {/* Delivery Address */}
+            <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Delivery Address</h3>
+                <div className="relative">
+                    <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="w-full text-left p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                        {selectedAddress 
+                            ? formatAddress(selectedAddress)
+                            : 'Select delivery address'
+                        }
+                    </button>
+                    
+                    {isDropdownOpen && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                            {userAddresses.length > 0 ? (
+                                userAddresses.map((address, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            setSelectedAddress(address);
+                                            setIsDropdownOpen(false);
+                                        }}
+                                        className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                    >
+                                        {formatAddress(address)}
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="p-3 text-gray-500">
+                                    No addresses found. Please add an address first.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
 
-      const token = await getToken()
-      const {data} = await axios.post('/api/order/create', {
-        address: selectedAddress,
-        items: cartItemsArray
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+            {/* Payment Method */}
+            <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Payment Method</h3>
+                <div className="space-y-2">
+                    <label className="flex items-center">
+                        <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="COD"
+                            checked={paymentMethod === 'COD'}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            className="mr-2"
+                        />
+                        Cash on Delivery (COD)
+                    </label>
+                    <label className="flex items-center">
+                        <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="Online"
+                            checked={paymentMethod === 'Online'}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            className="mr-2"
+                        />
+                        Online Payment
+                    </label>
+                </div>
+            </div>
 
-      if (data.success) {
-        toast.success("Order created successfully")
-        setCartItems({})
-        router.push("/order-placed")
-      }
-      else{
-        toast.error(data.message)
-      }
+            {/* Order Total */}
+            <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-600">Subtotal:</span>
+                    <span className="font-medium">₱{getCartAmount()}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-600">Shipping:</span>
+                    <span className="font-medium">₱0.00</span>
+                </div>
+                <div className="flex justify-between items-center text-lg font-semibold border-t pt-2">
+                    <span>Total:</span>
+                    <span>₱{getCartAmount()}</span>
+                </div>
+            </div>
 
-    } catch (error) {
-      toast.error(error.message)
-    }
-
-  }
-
-  useEffect(() => {
-    if (userAddresses.length > 0) {
-      setSelectedAddress(userAddresses[0])
-    }
-  }, [userAddresses])
-
-  return (
-    <div className="w-full md:w-96 bg-gray-500/5 p-5">
-      <h2 className="text-xl md:text-2xl font-medium text-gray-700">
-        Order Summary
-      </h2>
-      <hr className="border-gray-500/30 my-5" />
-      <div className="space-y-6">
-        <div>
-          <label className="text-base font-medium uppercase text-gray-600 block mb-2">
-            Select Address
-          </label>
-          <div className="relative inline-block w-full text-sm border">
+            {/* Place Order Button */}
             <button
-              className="peer w-full text-left px-4 pr-2 py-2 bg-white text-gray-700 focus:outline-none"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={handlePlaceOrder}
+                disabled={loading || !selectedAddress}
+                className="w-full mt-6 bg-orange-600 text-white py-3 px-4 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span>
-                {selectedAddress
-                  ? `${selectedAddress.fullName}, ${selectedAddress.area}, ${selectedAddress.city}, ${selectedAddress.state}`
-                  : "Select Address"}
-              </span>
-              <svg className={`w-5 h-5 inline float-right transition-transform duration-200 ${isDropdownOpen ? "rotate-0" : "-rotate-90"}`}
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#6B7280"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
+                {loading ? 'Placing Order...' : 'Place Order'}
             </button>
-
-            {isDropdownOpen && (
-              <ul className="absolute w-full bg-white border shadow-md mt-1 z-10 py-1.5">
-                {userAddresses.map((address, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer"
-                    onClick={() => handleAddressSelect(address)}
-                  >
-                    {address.fullName}, {address.area}, {address.city}, {address.state}
-                  </li>
-                ))}
-                <li
-                  onClick={() => router.push("/add-address")}
-                  className="px-4 py-2 hover:bg-gray-500/10 cursor-pointer text-center"
-                >
-                  + Add New Address
-                </li>
-              </ul>
-            )}
-          </div>
         </div>
-
-        <div>
-          <label className="text-base font-medium uppercase text-gray-600 block mb-2">
-            Promo Code
-          </label>
-          <div className="flex flex-col items-start gap-3">
-            <input
-              type="text"
-              placeholder="Enter promo code"
-              className="flex-grow w-full outline-none p-2.5 text-gray-600 border"
-            />
-            <button className="bg-orange-600 text-white px-9 py-2 hover:bg-orange-700">
-              Apply
-            </button>
-          </div>
-        </div>
-
-        <hr className="border-gray-500/30 my-5" />
-
-        <div className="space-y-4">
-          <div className="flex justify-between text-base font-medium">
-            <p className="uppercase text-gray-600">Items {getCartCount()}</p>
-            <p className="text-gray-800">{currency}{getCartAmount()}</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-gray-600">Shipping Fee</p>
-            <p className="font-medium text-gray-800">Free</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-gray-600">Tax (2%)</p>
-            <p className="font-medium text-gray-800">{currency}{Math.floor(getCartAmount() * 0.02)}</p>
-          </div>
-          <div className="flex justify-between text-lg md:text-xl font-medium border-t pt-3">
-            <p>Total</p>
-            <p>{currency}{getCartAmount() + Math.floor(getCartAmount() * 0.02)}</p>
-          </div>
-        </div>
-      </div>
-
-      <button onClick={createOrder} className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700">
-        Place Order
-      </button>
-    </div>
-  );
+    );
 };
 
 export default OrderSummary;

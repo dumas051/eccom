@@ -17,3 +17,57 @@
 ::-webkit-scrollbar {
   display: none;
 }
+
+body {
+  @apply bg-white text-gray-900;
+}
+
+/* Card backgrounds */
+.dark .bg-white {
+  background-color: #18181b !important;
+}
+
+/* Table backgrounds */
+.dark .bg-gray-500\/10 {
+  background-color: #23232b !important;
+}
+
+/* Borders */
+.dark .border-gray-500\/20, .dark .border-gray-300 {
+  border-color: #333642 !important;
+}
+
+/* Inputs and buttons */
+.dark input, .dark textarea, .dark select {
+  @apply bg-neutral-900 text-white border-gray-700;
+}
+
+.dark .bg-orange-600 {
+  background-color: #ff6600 !important;
+}
+
+.dark .text-orange-600 {
+  color: #ff6600 !important;
+}
+
+/* Make specific text white in dark mode */
+.dark .text-gray-900 {
+  color: white !important;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* Keep orange accent visible */
+.dark .text-orange-600 {
+  color: #ff6600 !important;
+}

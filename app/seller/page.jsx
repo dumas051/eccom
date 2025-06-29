@@ -13,9 +13,11 @@ const AddProduct = () => {
   const [files, setFiles] = useState([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Earphone');
+  const [category, setCategory] = useState('Mouse');
   const [price, setPrice] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
+  const [stock, setStock] = useState('');
+  const [lowStockThreshold, setLowStockThreshold] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +29,8 @@ const AddProduct = () => {
     formData.append('description', description);
     formData.append('category', category);
     formData.append('offerPrice', offerPrice);
+    formData.append('stock', stock);
+    formData.append('lowStockThreshold', lowStockThreshold);
 
     for (let i = 0; i < files.length; i++) {
       formData.append('images', files[i]);
@@ -43,9 +47,11 @@ const AddProduct = () => {
           setFiles([])
           setName('')
           setDescription('')
-          setCategory('Earphone')
+          setCategory('Mouse')
           setPrice('')
           setOfferPrice('')
+          setStock('')
+          setLowStockThreshold('')
         } else {
           toast.error(data.message)
         }
@@ -127,18 +133,13 @@ const AddProduct = () => {
               onChange={(e) => setCategory(e.target.value)}
               defaultValue={category}
             >
-              <option value="Earphone">Earphone</option>
-              <option value="Headphone">Headphone</option>
-              <option value="Watch">Watch</option>
-              <option value="Smartphone">Smartphone</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Camera">Camera</option>
-              <option value="Accessories">Accessories</option>
+              <option value="Mouse">Mouse</option>
+              <option value="Keyboard">Keyboard</option>
             </select>
           </div>
           <div className="flex flex-col gap-1 w-32">
             <label className="text-base font-medium" htmlFor="product-price">
-              Product Price
+              Product Price (₱)
             </label>
             <input
               id="product-price"
@@ -152,7 +153,7 @@ const AddProduct = () => {
           </div>
           <div className="flex flex-col gap-1 w-32">
             <label className="text-base font-medium" htmlFor="offer-price">
-              Offer Price
+              Offer Price (₱)
             </label>
             <input
               id="offer-price"
@@ -163,6 +164,35 @@ const AddProduct = () => {
               value={offerPrice}
               required
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-base font-medium" htmlFor="stock">
+              Stock Quantity
+            </label>
+            <input
+              type="number"
+              id="stock"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              min="0"
+              required
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-base font-medium" htmlFor="low-stock-threshold">
+              Low Stock Threshold
+            </label>
+            <input
+              type="number"
+              id="low-stock-threshold"
+              value={lowStockThreshold}
+              onChange={(e) => setLowStockThreshold(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              min="1"
+              placeholder="5"
+            />
+            <p className="text-sm text-gray-600">Alert will show when stock falls below this number</p>
           </div>
         </div>
         <button type="submit" className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded">

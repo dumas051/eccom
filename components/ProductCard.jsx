@@ -31,6 +31,23 @@ const ProductCard = ({ product }) => {
 
             <p className="md:text-base font-medium pt-2 w-full truncate">{product.name}</p>
             <p className="w-full text-xs text-gray-500/70 max-sm:hidden truncate">{product.description}</p>
+            
+            {/* Stock Information */}
+            <div className="flex items-center gap-2 mt-1">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    product.stockStatus === 'In Stock' ? 'bg-green-100 text-green-800' :
+                    product.stockStatus === 'Low Stock' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                }`}>
+                    {product.stockStatus || 'Out of Stock'}
+                </span>
+                {product.stock > 0 && (
+                    <span className="text-xs text-gray-500">
+                        ({product.stock} left)
+                    </span>
+                )}
+            </div>
+            
             <div className="flex items-center gap-2">
                 <p className="text-xs">{4.5}</p>
                 <div className="flex items-center gap-0.5">
@@ -50,7 +67,9 @@ const ProductCard = ({ product }) => {
             </div>
 
             <div className="flex items-end justify-between w-full mt-1">
-                <p className="text-base font-medium">{currency}{product.offerPrice}</p>
+                <div className="bg-white rounded-lg shadow p-4 text-gray-900">
+                    <p className="text-base font-medium">{currency}{product.offerPrice}</p>
+                </div>
                 <button className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition">
                     Buy now
                 </button>

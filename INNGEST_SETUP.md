@@ -27,7 +27,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 MONGODB_URI=your_mongodb_connection_string
 
 # App
-NEXT_PUBLIC_CURRENCY=$
+NEXT_PUBLIC_CURRENCY=₱
 ```
 
 ## Setup Steps
