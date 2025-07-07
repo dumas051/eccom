@@ -96,7 +96,7 @@ const ProductList = () => {
               <col style={{ width: '16%' }} />
               <col style={{ width: '18%' }} />
               <col style={{ width: '22%' }} />
-            </colgroup>
+            </colgroup> 
             <thead className="text-gray-900 text-sm text-left">
               <tr>
                 <th className="px-4 py-3 font-medium truncate">Product</th>
