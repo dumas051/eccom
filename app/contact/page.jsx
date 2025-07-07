@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { assets } from '@/assets/assets';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
+import BackButton from '@/components/BackButton';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -34,6 +35,8 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+      <div className="absolute top-2 left-4 z-20"><BackButton /></div>
+
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-orange-600 to-orange-700 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 text-center">
@@ -42,11 +45,15 @@ const Contact = () => {
             Get in touch with our team for support, inquiries, or feedback
           </p>
           <div className="flex justify-center">
-            <Image
-              src={assets.logo1}
-              alt="Clicks & Types Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
+            <div style={{ width: '120px', height: '120px' }} className="flex items-center justify-center mx-auto">
+              <Image
+                src={assets.logo1}
+                alt="Clicks & Types Logo"
+                className="object-contain w-full h-full"
+                width={120}
+                height={120}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -91,7 +98,7 @@ const Contact = () => {
                 href="mailto:clics&types@gmail.com" 
                 className="text-orange-600 hover:text-orange-700 font-semibold text-lg"
               >
-                clics&types@gmail.com
+                clicks&types@gmail.com
               </a>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 We respond within 24 hours
@@ -293,17 +300,11 @@ const Contact = () => {
               </h2>
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="font-medium text-gray-900 dark:text-white">Monday - Friday</span>
-                  <span className="text-gray-600 dark:text-gray-300">9:00 AM - 6:00 PM</span>
+                  <span className="font-medium text-gray-900 dark:text-white">Available 24/7</span>
+                  <span className="text-gray-600 dark:text-gray-300">Monday - Sunday</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="font-medium text-gray-900 dark:text-white">Saturday</span>
-                  <span className="text-gray-600 dark:text-gray-300">10:00 AM - 4:00 PM</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-700">
-                  <span className="font-medium text-gray-900 dark:text-white">Sunday</span>
-                  <span className="text-gray-600 dark:text-gray-300">Closed</span>
-                </div>
+                
+              
               </div>
               
               <div className="mt-8">
@@ -317,7 +318,7 @@ const Contact = () => {
                   href="mailto:clics&types@gmail.com" 
                   className="text-orange-600 hover:text-orange-700 font-semibold"
                 >
-                  clics&types@gmail.com
+                  clicks&types@gmail.com
                 </a>
               </div>
             </div>
@@ -352,10 +353,10 @@ const Contact = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <Image src={assets.youtube_icon} alt="YouTube" className="w-8 h-8" />
+                  <Image className="" />
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">YouTube</h3>
-                    <p className="text-gray-600 dark:text-gray-300">Watch product reviews and gaming content</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white"></h3>
+                    <p className="text-gray-600 dark:text-gray-300"></p>
                   </div>
                 </div>
               </div>

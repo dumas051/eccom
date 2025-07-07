@@ -1,10 +1,11 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import { assets, productsDummyData } from "@/assets/assets";
+import { assets } from "@/assets/assets";
 import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
 import Footer from "@/components/seller/Footer";
 import Loading from "@/components/Loading";
+import BackButton from "@/components/BackButton";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -14,6 +15,7 @@ const ProductList = () => {
 
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [archivingId, setArchivingId] = useState(null);
 
   const fetchSellerProduct = async () => {
     try {
@@ -37,6 +39,7 @@ const ProductList = () => {
   }
 
   const handleDelete = async (productId) => {
+    setArchivingId(productId);
     try {
       const token = await getToken()
       const { data } = await axios.post('/api/product/delete', { productId }, {
@@ -45,31 +48,54 @@ const ProductList = () => {
         }
       });
       if (data.success) {
-        toast.success(data.message)
+        toast.success("Product deleted successfully");
         setProducts(products.filter(product => product._id !== productId))
       } else {
         toast.error(data.message)
       }
     } catch (error) {
       toast.error(error.message)
+    } finally {
+      setArchivingId(null);
     }
   }
+
+  const handleArchive = async (productId) => {
+    setArchivingId(productId);
+    try {
+      const token = await getToken();
+      const { data } = await axios.post('/api/product/archive', { productId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        toast.success("Product archived successfully");
+        setProducts(products.filter(product => product._id !== productId));
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setArchivingId(null);
+    }
+  };
 
   useEffect(() => {
     fetchSellerProduct();
   }, [])
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col justify-between">
+    <div className="flex-1 min-h-screen flex flex-col justify-between relative">
+      <div className="absolute top-2 left-4 z-20"><BackButton customText="Back to Dashboard" customHref="/seller" /></div>
       {loading ? <Loading /> : <div className="w-full flex justify-center md:p-10 p-4">
-        <div className="flex flex-col items-center w-full max-w-4xl mx-auto overflow-hidden rounded-md bg-white border border-gray-500/20">
-          <table className="table-fixed w-full overflow-hidden">
+        <div className="flex flex-col items-center w-full max-w-7xl mx-auto overflow-x-auto rounded-md bg-white border border-gray-500/20">
+          <table className="table-fixed w-full min-w-[900px] overflow-hidden">
             <colgroup>
               <col style={{ width: '32%' }} />
               <col style={{ width: '16%' }} />
               <col style={{ width: '16%' }} />
               <col style={{ width: '18%' }} />
-              <col style={{ width: '18%' }} />
+              <col style={{ width: '22%' }} />
             </colgroup>
             <thead className="text-gray-900 text-sm text-left">
               <tr>
@@ -95,6 +121,9 @@ const ProductList = () => {
                     </div>
                     <span className="truncate w-full text-gray-900 dark:text-gray-100">
                       {product.name}
+                      {product.archived && (
+                        <span className="ml-2 px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-semibold align-middle">Archived</span>
+                      )}
                     </span>
                   </td>
                   <td className="px-4 py-3 max-sm:hidden">{product.category}</td>
@@ -113,8 +142,8 @@ const ProductList = () => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 max-sm:hidden flex items-center gap-2">
-                    <button onClick={() => router.push(`/product/${product._id}`)} className="flex items-center gap-1 px-1.5 md:px-3.5 py-2 bg-orange-600 text-white rounded-md">
+                  <td className="px-4 py-3 flex flex-col md:flex-row items-start md:items-center gap-2">
+                    <button onClick={() => router.push(`/product/${product._id}`)} className="flex items-center gap-1 px-1.5 md:px-3.5 py-2 bg-orange-600 text-white rounded-md w-full md:w-auto">
                       <span className="hidden md:block">Visit</span>
                       <Image
                         className="h-3.5"
@@ -122,8 +151,15 @@ const ProductList = () => {
                         alt="redirect_icon"
                       />
                     </button>
-                    <button onClick={() => handleDelete(product._id)} className="flex items-center gap-1 px-1.5 md:px-3.5 py-2 bg-red-600 text-white rounded-md">
+                    <button onClick={() => handleDelete(product._id)} className="flex items-center gap-1 px-1.5 md:px-3.5 py-2 bg-red-600 text-white rounded-md w-full md:w-auto">
                       <span className="hidden md:block">Delete</span>
+                    </button>
+                    <button
+                      onClick={() => handleArchive(product._id)}
+                      disabled={archivingId === product._id}
+                      className="flex items-center gap-1 px-1.5 md:px-3.5 py-2 bg-gray-600 text-white rounded-md w-full md:w-auto disabled:opacity-50"
+                    >
+                      <span className="hidden md:block">Archive</span>
                     </button>
                   </td>
                 </tr>

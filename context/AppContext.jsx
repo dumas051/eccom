@@ -1,5 +1,4 @@
 'use client'
-import { productsDummyData, userDummyData } from "@/assets/assets";
 import { useUser, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -24,9 +23,24 @@ export const AppContextProvider = (props) => {
     const [isSeller, setIsSeller] = useState(false)
     const [cartItems, setCartItems] = useState({})
     const [userAddresses, setUserAddresses] = useState([]);
+    const [notifications, setNotifications] = useState([]);
 
     const addNewAddress = (newAddress) => {
         setUserAddresses(prevAddresses => [...prevAddresses, newAddress]);
+    }
+
+    const updateAddress = (addressIndex, updatedAddress) => {
+        setUserAddresses(prevAddresses => 
+            prevAddresses.map((address, index) => 
+                index === addressIndex ? updatedAddress : address
+            )
+        );
+    }
+
+    const deleteAddress = (addressIndex) => {
+        setUserAddresses(prevAddresses => 
+            prevAddresses.filter((_, index) => index !== addressIndex)
+        );
     }
 
     const updateCartInDB = async (cartData) => {
@@ -52,13 +66,15 @@ export const AppContextProvider = (props) => {
                 headers: { Authorization: `Bearer ${token}` }
             })
             if (data.success) {
-                setUserAddresses(data.address || [])
+                setUserAddresses(Array.isArray(data.address) ? data.address : []);
             } else {
-                toast.error(data.message || 'Failed to fetch addresses')
+                toast.error(data.message || 'Failed to fetch addresses');
+                setUserAddresses([]);
             }
         } catch (error) {
             console.error('Error fetching addresses:', error);
-            toast.error(error.response?.data?.message || error.message || 'Failed to fetch addresses')
+            toast.error(error.response?.data?.message || error.message || 'Failed to fetch addresses');
+            setUserAddresses([]);
         }
     }
 
@@ -162,6 +178,19 @@ export const AppContextProvider = (props) => {
         return Math.floor(totalAmount * 100) / 100;
     }
 
+    const clearCart = async () => {
+        setCartItems({});
+        await updateCartInDB({});
+    }
+
+    const addNotification = (notification) => {
+        setNotifications(prev => [
+            { id: Date.now(), ...notification },
+            ...prev
+        ]);
+    };
+    const clearNotifications = () => setNotifications([]);
+
     useEffect(() => {
         fetchProductData()
     }, [])
@@ -183,7 +212,8 @@ export const AppContextProvider = (props) => {
         addToCart, updateCartQuantity,
         getCartCount, getCartAmount,
         userAddresses, fetchUserAddresses,
-        addNewAddress
+        addNewAddress, updateAddress, deleteAddress, clearCart,
+        notifications, addNotification, clearNotifications
     }
 
     return (

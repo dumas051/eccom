@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Modal from "@/components/Modal";
+import Modal, { ConfirmationModal } from "@/components/Modal";
 import Footer from "@/components/seller/Footer";
 import Navbar from "@/components/seller/Navbar";
+import BackButton from "@/components/BackButton";
 
 const SellerReturns = () => {
   const { getToken, currency } = useAppContext();
@@ -19,6 +20,7 @@ const SellerReturns = () => {
   const [refundMethod, setRefundMethod] = useState("");
   const [restock, setRestock] = useState(false);
   const [processing, setProcessing] = useState(false);
+  // Remove ConfirmationModal state
 
   const fetchReturns = async () => {
     try {
@@ -77,11 +79,22 @@ const SellerReturns = () => {
     }
   };
 
+  const handleApprove = (order) => {
+    openModal(order, 'approve');
+  };
+  const handleReject = (order) => {
+    openModal(order, 'reject');
+  };
+  // Remove ConfirmationModal JSX
+
   return (
-    <div className="flex-1 min-h-screen flex flex-col justify-between">
-      <Navbar />
+    <div className="flex-1 min-h-screen flex flex-col justify-between relative">
+      <div className="w-full flex justify-start px-4 md:px-8 pt-4"><BackButton customText="Back to Dashboard" customHref="/seller" /></div>
+      {/* <Navbar /> Removed to eliminate logo and logout button from main content area */}
       <div className="max-w-5xl mx-auto w-full p-6">
-        <h2 className="text-2xl font-semibold mb-6">Return/Refund Requests</h2>
+        <div className="flex items-center gap-4 mb-6">
+          <h2 className="text-2xl font-semibold">Return/Refund Requests</h2>
+        </div>
         {loading ? <div>Loading...</div> : returns.length === 0 ? (
           <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-6 rounded">No return/refund requests found.</div>
         ) : (
@@ -104,13 +117,13 @@ const SellerReturns = () => {
                 {order.returnRequest.status === 'Requested' && (
                   <div className="flex gap-2 mt-2 md:mt-0">
                     <button
-                      onClick={() => openModal(order, 'approve')}
+                      onClick={() => handleApprove(order)}
                       className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                     >
                       Approve
                     </button>
                     <button
-                      onClick={() => openModal(order, 'reject')}
+                      onClick={() => handleReject(order)}
                       className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                     >
                       Reject
@@ -144,7 +157,7 @@ const SellerReturns = () => {
                 >
                   <option value="">Select method</option>
                   <option value="Original Payment">Original Payment</option>
-                  <option value="Store Credit">Store Credit</option>
+                  <option value="Cash, after returning the product">Cash, after returning the product</option>
                 </select>
                 <label className="inline-flex items-center mb-4">
                   <input
@@ -183,6 +196,7 @@ const SellerReturns = () => {
           </div>
         </Modal>
       )}
+      {/* Remove ConfirmationModal JSX */}
       <Footer />
     </div>
   );

@@ -22,6 +22,99 @@ body {
   @apply bg-white text-gray-900;
 }
 
+/* Enhanced transition utilities */
+@layer utilities {
+  .transition-smooth {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .transition-fast {
+    @apply transition-all duration-150 ease-out;
+  }
+  
+  .transition-slow {
+    @apply transition-all duration-500 ease-in-out;
+  }
+  
+  .hover-lift {
+    @apply transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-lg;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 ease-out hover:scale-105;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 ease-out hover:shadow-lg hover:shadow-orange-500/20;
+  }
+  
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+  }
+  
+  .button-transition {
+    @apply transition-all duration-200 ease-out hover:scale-105 active:scale-95;
+  }
+  
+  .card-transition {
+    @apply transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .text-transition {
+    @apply transition-colors duration-200 ease-out;
+  }
+  
+  .border-transition {
+    @apply transition-colors duration-200 ease-out;
+  }
+  
+  .opacity-transition {
+    @apply transition-opacity duration-200 ease-out;
+  }
+  
+  .transform-transition {
+    @apply transition-transform duration-200 ease-out;
+  }
+}
+
+/* Page transition animations */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms ease-in, transform 300ms ease-in;
+}
+
+/* Loading skeleton animation */
+.skeleton {
+  @apply bg-gray-200 animate-pulse;
+}
+
+.skeleton-shimmer {
+  @apply relative overflow-hidden bg-gray-200;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+  animation: shimmer 2s infinite;
+}
+
 /* Card backgrounds */
 .dark .bg-white {
   background-color: #18181b !important;

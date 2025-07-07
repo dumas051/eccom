@@ -1,13 +1,14 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { assets } from '@/assets/assets';
+import BackButton from '@/components/BackButton';
 import Image from 'next/image';
 
-const TrackOrder = () => {
+const TrackOrderContent = () => {
   const { currency } = useAppContext();
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState('');
@@ -72,7 +73,8 @@ const TrackOrder = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+      <div className="absolute top-4 left-4 z-20"><BackButton /></div>
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Track Your Order</h1>
@@ -198,9 +200,10 @@ const TrackOrder = () => {
 
             {/* Estimated Delivery */}
             {trackingData.estimatedDelivery && (
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  📅 Estimated Delivery: {new Date(trackingData.estimatedDelivery).toLocaleDateString()}
+              <div className="mt-6 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-2">Estimated Delivery</h4>
+                <p className="text-orange-800 dark:text-orange-200">
+                  {new Date(trackingData.estimatedDelivery).toLocaleDateString()}
                 </p>
               </div>
             )}
@@ -208,6 +211,14 @@ const TrackOrder = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const TrackOrder = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TrackOrderContent />
+    </Suspense>
   );
 };
 

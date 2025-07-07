@@ -10,7 +10,9 @@ const SideBar = () => {
         { name: 'Add Product', path: '/seller', icon: assets.add_icon },
         { name: 'Product List', path: '/seller/product-list', icon: assets.product_list_icon },
         { name: 'Inventory', path: '/seller/inventory', icon: '📦', isEmoji: true },
+        { name: 'Archived Products', path: '/seller/archived-products', icon: assets.box_icon },
         { name: 'Orders', path: '/seller/orders', icon: assets.order_icon },
+        { name: 'Archived Orders', path: '/seller/archived-orders', icon: '📁', isEmoji: true },
         { name: 'Returns', path: '/seller/returns', icon: '🔄', isEmoji: true },
     ];
 

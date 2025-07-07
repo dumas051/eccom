@@ -5,18 +5,20 @@ import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
 import Footer from "@/components/seller/Footer";
 import Loading from "@/components/Loading";
+import PaymentUpdateModal from "@/components/PaymentUpdateModal";
+import BackButton from "@/components/BackButton";
 import axios from "axios";
-import { toast } from 'react-toastify';
-
+import toast from "react-hot-toast";
 
 const Orders = () => {
 
-    const { currency, user, getToken } = useAppContext(); // Make sure getToken is here
+    const { currency, user, getToken } = useAppContext();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [cancellingOrder, setCancellingOrder] = useState(null);
     const [showTrackingModal, setShowTrackingModal] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [trackingForm, setTrackingForm] = useState({
         trackingNumber: '',
@@ -29,10 +31,8 @@ const Orders = () => {
     const fetchSellerOrders = async () => {
        try {
          const token = await getToken();
-         console.log("Token:", token);
          const { data } = await axios.get('/api/order/seller-orders',
             { headers: { Authorization: `Bearer ${token}` } });
-
             if(data.success){
                 setOrders(data.orders);
             } else {
@@ -129,6 +129,55 @@ const Orders = () => {
         setShowTrackingModal(true);
     };
 
+    const openPaymentModal = (order) => {
+        setSelectedOrder(order);
+        setShowPaymentModal(true);
+    };
+
+    const handlePaymentUpdate = (updatedOrder) => {
+        // Update the order in the local state
+        setOrders(prevOrders => 
+            prevOrders.map(order => 
+                order._id === updatedOrder._id ? updatedOrder : order
+            )
+        );
+    };
+
+    const getPaymentStatusColor = (status) => {
+        switch (status) {
+            case 'Paid': return 'text-green-600 bg-green-100';
+            case 'Pending': return 'text-yellow-600 bg-yellow-100';
+            case 'Failed': return 'text-red-600 bg-red-100';
+            case 'Refunded': return 'text-blue-600 bg-blue-100';
+            default: return 'text-gray-600 bg-gray-100';
+        }
+    };
+
+    const archiveOrder = async (orderId, archived) => {
+        try {
+            console.log('Archiving order:', orderId, 'archived:', archived);
+            const token = await getToken();
+            const { data } = await axios.post('/api/order/archive', { orderId, archived }, { headers: { Authorization: `Bearer ${token}` } });
+            console.log('Archive response:', data);
+            if (data.success) {
+                toast.success(archived ? 'Order archived successfully! Products have been removed from the order. View archived orders in the "Archived Orders" section.' : 'Order unarchived');
+                fetchSellerOrders();
+            } else {
+                toast.error(data.message || 'Failed to update archive status');
+            }
+        } catch (error) {
+            console.error('Archive error:', error);
+            toast.error('Failed to update archive status');
+        }
+    };
+
+    const handleCancelOrder = (orderId) => {
+        cancelOrder(orderId);
+    };
+    const handleArchiveOrder = (orderId) => {
+        archiveOrder(orderId, true);
+    };
+
     useEffect(() => {
         if(user){
         fetchSellerOrders();
@@ -136,9 +185,9 @@ const Orders = () => {
     }, [user]);
 
     return (
-        <div className="flex-1 h-screen overflow-scroll flex flex-col justify-between text-sm">
+        <div className="flex-1 h-screen overflow-scroll flex flex-col justify-between text-sm relative">
+      <div className="absolute top-4 left-4 z-20"><BackButton customText="Back to Dashboard" customHref="/seller" /></div>
             {loading ? <Loading /> : <div className="md:p-10 p-4 space-y-5">
-                <h2 className="text-lg font-medium">Orders</h2>
                 <div className="max-w-4xl rounded-md">
                     {orders.map((order, index) => (
                         <div key={index} className="flex flex-col md:flex-row gap-5 justify-between p-5 border-t border-gray-300 bg-white dark:bg-neutral-900 text-gray-900 dark:text-gray-100">
@@ -169,16 +218,36 @@ const Orders = () => {
                                     <span>{order.address?.phone || "N/A"}</span>
                                 </p>
                             </div>
-                            <p className="font-medium my-auto">{currency}{order.amount}</p>
+                            <div className="text-right">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm text-gray-600">Subtotal: {currency}{order.amount}</span>
+                                    {order.tax > 0 && (
+                                        <span className="text-sm text-gray-600">Tax: {currency}{order.tax}</span>
+                                    )}
+                                    {order.shippingFee !== undefined && (
+                                        <span className="text-sm text-gray-600">
+                                            Shipping: {order.shippingFee === 0 ? 'FREE' : currency + order.shippingFee}
+                                        </span>
+                                    )}
+                                    <span className="font-medium text-base">
+                                        Total: {currency}{order.totalAmount || order.amount}
+                                    </span>
+                                </div>
+                            </div>
                             <div className="flex flex-col gap-2 items-end">
                                 <p className="flex flex-col text-gray-900 dark:text-gray-100">
                                     <span>Method : {order.paymentMethod || 'COD'}</span>
                                     <span>Date : {new Date(order.date).toLocaleDateString()}</span>
-                                    <span>Payment : Pending</span>
+                                    <span className={`px-2 py-1 rounded text-xs font-medium ${getPaymentStatusColor(order.paymentStatus || 'Pending')}`}>
+                                        Payment : {order.paymentStatus || 'Pending'}
+                                    </span>
+                                    {order.paymentMethod === 'Gcash' && order.paymentDetails?.gcashCustomerNumber && (
+                                        <span className="mt-2 text-xs text-blue-700">Customer GCash #: {order.paymentDetails.gcashCustomerNumber}</span>
+                                    )}
                                 </p>
                                 {order.canCancel && order.status !== 'Cancelled' && (
                                     <button
-                                        onClick={() => cancelOrder(order._id)}
+                                        onClick={() => handleCancelOrder(order._id)}
                                         disabled={cancellingOrder === order._id}
                                         className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                                     >
@@ -208,14 +277,28 @@ const Orders = () => {
                                         </span>
                                     )}
                                 </div>
-                                {order.status !== 'Cancelled' && (
+                                <div className="flex gap-2 mt-2">
+                                    {order.status !== 'Cancelled' && (
+                                        <button
+                                            onClick={() => openTrackingModal(order)}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
+                                        >
+                                            Update Tracking
+                                        </button>
+                                    )}
                                     <button
-                                        onClick={() => openTrackingModal(order)}
-                                        className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
+                                        onClick={() => openPaymentModal(order)}
+                                        className="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition"
                                     >
-                                        Update Tracking
+                                        Update Payment
                                     </button>
-                                )}
+                                </div>
+                                <button
+                                    onClick={() => handleArchiveOrder(order._id)}
+                                    className={`mt-2 px-4 py-2 ${order.archived ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-600 hover:bg-gray-700'} text-white rounded-md text-sm transition`}
+                                >
+                                    {order.archived ? 'Unarchive' : 'Archive Order'}
+                                </button>
                             </div>
                         </div>
                     ))}
@@ -319,6 +402,18 @@ const Orders = () => {
                     </div>
                 </div>
             )}
+
+            {/* Payment Update Modal */}
+            <PaymentUpdateModal
+                isOpen={showPaymentModal}
+                onClose={() => {
+                    setShowPaymentModal(false);
+                    setSelectedOrder(null);
+                }}
+                order={selectedOrder}
+                onUpdate={handlePaymentUpdate}
+            />
+
             <Footer />
         </div>
     );

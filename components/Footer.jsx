@@ -9,7 +9,8 @@ const Footer = () => {
         <div className="w-4/5">
           <Image className="w-28 md:w-32" src={assets.logo1} alt="logo1" />
           <p className="mt-6 text-sm text-gray-500 dark:text-gray-300">
-           As we explore the realm of keyboard and mouse excellence, the innovations and advancements that enhance our digital interactions, making every click and keystroke a seamless part of our daily lives. Whether for work, play, or creative endeavors, investing in high-quality input devices is essential for achieving peak performance and satisfaction in today's digital world. With advanced connectivity options, long-lasting battery life, and sleek aesthetics, our wireless keyboard and mouse products are perfect for professionals, gamers, and casual users alike.
+           As we explore the realm of keyboard and mouse excellence, the innovations and advancements that enhance our digital interactions, making every click and keystroke a seamless part of our daily lives.
+           Whether for work, play, or creative endeavors, investing in high-quality input devices is essential for achieving peak performance and satisfaction in today's digital world. With advanced connectivity options, long-lasting battery life, and sleek aesthetics, our wireless keyboard and mouse products are perfect for professionals, gamers, and casual users alike.
           </p>
         </div>
 
@@ -38,7 +39,7 @@ const Footer = () => {
             <h2 className="font-medium text-gray-900 dark:text-white mb-5">Get in touch</h2>
             <div className="text-sm space-y-2 text-gray-500 dark:text-gray-300">
               <p>+63 991 182 8964</p>
-              <p>clics&types@gmail.com</p>
+              <p>clicks&types@gmail.com</p>
             </div>
           </div>
         </div>

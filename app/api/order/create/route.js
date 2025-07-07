@@ -6,18 +6,39 @@ import { inngest } from "@/config/inngest"
 import User from "@/models/User"
 import Order from "@/models/Order"
 import axios from "axios"
+import { calculateTax, calculateShippingFee, calculateTotal } from "@/lib/taxShipping"
 
 export async function POST(request){
     try {
+        await connectDB();
+        
         const { userId } = getAuth(request)
-        const { address, items, paymentMethod = 'COD' } = await request.json()
+        if (!userId) {
+            return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+        }
+        
+        const reqBody = await request.json()
+        const { address, items, paymentMethod = 'COD', gcash } = reqBody
 
-        if (!userId || items.length === 0) {
-            return NextResponse.json({ success: false, message: "Invalid request" })
+        console.log('Order creation request:', { userId, address, items, paymentMethod });
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return NextResponse.json({ success: false, message: "Invalid or empty items array" }, { status: 400 });
         }
 
         if (!address || typeof address !== "object") {
-            return NextResponse.json({ success: false, message: "Invalid address" });
+            return NextResponse.json({ success: false, message: "Invalid address" }, { status: 400 });
+        }
+
+        // Validate required address fields
+        const requiredFields = ['fullName', 'phone', 'pincode', 'area', 'city', 'state'];
+        const missingFields = requiredFields.filter(field => !address[field] || address[field].trim() === '');
+        
+        if (missingFields.length > 0) {
+            return NextResponse.json({ 
+                success: false, 
+                message: `Missing required address fields: ${missingFields.join(', ')}` 
+            }, { status: 400 });
         }
 
         // Patch for compatibility: support both phone and phoneNumber
@@ -25,21 +46,55 @@ export async function POST(request){
             address.phone = address.phoneNumber;
         }
 
-        // calculate total amount
-        let amount = 0;
+        // Validate items and calculate subtotal
+        let subtotal = 0;
+        const validatedItems = [];
+        
         for (const item of items) {
-            const product = await Product.findById(item.product);
-            if (product) {
-                amount += product.offerPrice * item.quantity;
+            if (!item.product || !item.quantity || item.quantity <= 0) {
+                return NextResponse.json({ 
+                    success: false, 
+                    message: "Invalid item data: missing product ID or invalid quantity" 
+                }, { status: 400 });
             }
+            
+            const product = await Product.findById(item.product);
+            if (!product) {
+                return NextResponse.json({ 
+                    success: false, 
+                    message: `Product not found: ${item.product}` 
+                }, { status: 404 });
+            }
+            
+            // Check stock availability
+            if (product.stock < item.quantity) {
+                return NextResponse.json({ 
+                    success: false, 
+                    message: `Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}` 
+                }, { status: 400 });
+            }
+            
+            subtotal += product.offerPrice * item.quantity;
+            validatedItems.push({
+                product: item.product,
+                quantity: item.quantity
+            });
         }
+
+        // Calculate tax and shipping
+        const tax = calculateTax(subtotal, address);
+        const shippingFee = calculateShippingFee(subtotal, address);
+        const totalAmount = calculateTotal(subtotal, address);
 
         await inngest.send({
             name: 'order/created',
             data: {
                 userId,
                 items,
-                amount: amount + Math.floor(amount * 0.12),
+                subtotal,
+                tax,
+                shippingFee,
+                totalAmount,
                 address,
                 paymentMethod,
                 date: Date.now()
@@ -49,29 +104,48 @@ export async function POST(request){
         // Save order to DB
         const orderData = {
             userId,
-            items,
-            amount: amount + Math.floor(amount * 0.12),
+            items: validatedItems,
+            amount: subtotal, // Subtotal before tax and shipping
+            tax: tax,
+            shippingFee: shippingFee,
+            totalAmount: totalAmount, // Total after tax and shipping
             address,
             status: "Order Placed",
             date: Date.now(),
-            paymentMethod
+            paymentMethod,
+            paymentStatus: paymentMethod === 'Gcash' ? 'Paid' : (paymentMethod === 'COD' ? 'Pending' : 'Pending'),
+            paymentDetails: {
+                paymentAmount: totalAmount,
+                ...(paymentMethod === 'Gcash' && gcash ? {
+                    gcashCustomerNumber: gcash.customerNumber
+                } : {})
+            }
         };
 
+        console.log('Creating order with data:', orderData);
+
         const newOrder = new Order(orderData);
+        
+        // Validate the order before saving
+        const validationError = newOrder.validateSync();
+        if (validationError) {
+            console.error('Order validation error:', validationError);
+            return NextResponse.json({ 
+                success: false, 
+                message: `Order validation failed: ${validationError.message}` 
+            }, { status: 400 });
+        }
+        
         await newOrder.save();
+        console.log('Order saved successfully:', newOrder._id);
 
         // Reduce stock for each product in the order
-        for (const item of items) {
+        for (const item of validatedItems) {
             const product = await Product.findById(item.product);
             if (product) {
-                const newStock = (typeof product.stock === 'number' ? product.stock : 0) - item.quantity;
-                if (newStock < 0) {
-                    return NextResponse.json({ 
-                        success: false, 
-                        message: `Insufficient stock for ${product.name}. Available: ${product.stock}` 
-                    });
-                }
-                // Update stock and status robustly
+                const newStock = product.stock - item.quantity;
+                
+                // Update stock and status
                 const updates = {
                     stock: newStock,
                     stockStatus:
@@ -81,18 +155,24 @@ export async function POST(request){
                             ? 'Low Stock'
                             : 'In Stock',
                 };
+                
                 await Product.findByIdAndUpdate(
                     product._id,
                     { $set: updates },
                     { new: true, strict: false }
                 );
+                
+                console.log(`Updated stock for ${product.name}: ${product.stock} -> ${newStock}`);
             }
         }
 
-        // clear cart
-        const user = await User.findById(userId)
-        user.cartItems = {}
-        await user.save()
+        // Clear cart
+        const user = await User.findById(userId);
+        if (user) {
+            user.cartItems = {};
+            await user.save();
+            console.log('Cart cleared for user:', userId);
+        }
 
         // Send order confirmation email
         try {
@@ -104,7 +184,10 @@ export async function POST(request){
                     data: {
                         _id: newOrder._id,
                         date: newOrder.date,
-                        amount: newOrder.amount,
+                        subtotal: newOrder.amount,
+                        tax: newOrder.tax,
+                        shippingFee: newOrder.shippingFee,
+                        totalAmount: newOrder.totalAmount,
                         paymentMethod: newOrder.paymentMethod,
                         status: newOrder.status,
                         items: newOrder.items,
@@ -118,10 +201,35 @@ export async function POST(request){
             // Don't fail the order creation if email fails
         }
 
-        return NextResponse.json({ success: true, message: "Order created successfully" })
+        return NextResponse.json({ 
+            success: true, 
+            message: "Order created successfully",
+            order: newOrder
+        })
 
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ success: false, message: error.message })
+        console.error('Order creation error:', error);
+        
+        // Handle specific MongoDB validation errors
+        if (error.name === 'ValidationError') {
+            const validationErrors = Object.values(error.errors).map(err => err.message);
+            return NextResponse.json({ 
+                success: false, 
+                message: `Validation failed: ${validationErrors.join(', ')}` 
+            }, { status: 400 });
+        }
+        
+        // Handle MongoDB duplicate key errors
+        if (error.code === 11000) {
+            return NextResponse.json({ 
+                success: false, 
+                message: "Order already exists" 
+            }, { status: 409 });
+        }
+        
+        return NextResponse.json({ 
+            success: false, 
+            message: error.message || "Internal server error" 
+        }, { status: 500 });
     }
 }

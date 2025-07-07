@@ -3,10 +3,13 @@ import React from 'react';
 import { assets } from '@/assets/assets';
 import Image from 'next/image';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
+      <div className="absolute top-2 left-4 z-20"><BackButton /></div>
+
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-orange-600 to-orange-700 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 text-center">
@@ -15,11 +18,15 @@ const AboutUs = () => {
             Your trusted partner for premium gaming peripherals and professional input devices
           </p>
           <div className="flex justify-center">
-            <Image
-              src={assets.logo1}
-              alt="Clicks & Types Logo"
-              className="w-32 h-32 md:w-40 md:h-40"
-            />
+            <div style={{ width: '120px', height: '120px' }} className="flex items-center justify-center mx-auto">
+              <Image
+                src={assets.logo1}
+                alt="Clicks & Types Logo"
+                className="object-contain w-full h-full"
+                width={120}
+                height={120}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -199,60 +206,37 @@ const AboutUs = () => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Our Product Categories
+            
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              Specialized in gaming peripherals that elevate your experience
+
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-8">
+            <div className="">
               <div className="flex items-center mb-6">
-                <Image
-                  src={assets.Mouse1}
-                  alt="Gaming Mouse"
-                  className="w-16 h-16 object-cover rounded-lg mr-4"
-                />
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Gaming Mice</h3>
-                  <p className="text-gray-600 dark:text-gray-300">Precision and speed</p>
-                </div>
+                
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                From ultra-lightweight wireless mice to high-DPI gaming beasts, we offer a range of 
-                options designed for competitive gaming and professional use.
+                
               </p>
               <Link 
                 href="/all-products" 
-                className="inline-block bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition"
+                className=""
               >
-                Shop Mice
+                
               </Link>
             </div>
             
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-8">
+            <div className="">
               <div className="flex items-center mb-6">
-                <Image
-                  src={assets.Keyboard1}
-                  alt="Gaming Keyboard"
-                  className="w-16 h-16 object-cover rounded-lg mr-4"
-                />
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Gaming Keyboards</h3>
-                  <p className="text-gray-600 dark:text-gray-300">Responsive and durable</p>
-                </div>
+                
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Mechanical keyboards with premium switches, customizable RGB lighting, and ergonomic 
-                designs for extended gaming and typing sessions.
+               
               </p>
-              <Link 
-                href="/all-products" 
-                className="inline-block bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition"
-              >
-                Shop Keyboards
-              </Link>
+             
             </div>
           </div>
         </div>

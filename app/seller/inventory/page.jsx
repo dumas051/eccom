@@ -7,6 +7,7 @@ import { assets } from '@/assets/assets';
 import Image from 'next/image';
 import Loading from '@/components/Loading';
 import Footer from '@/components/seller/Footer';
+import BackButton from '@/components/BackButton';
 
 const InventoryManagement = () => {
   const { user, currency, getToken, fetchProductData } = useAppContext();
@@ -141,10 +142,13 @@ const InventoryManagement = () => {
   if (loading) return <Loading />;
 
   return (
-    <div className="flex-1 h-screen overflow-scroll flex flex-col justify-between text-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-950">
       <div className="md:p-10 p-4 space-y-5">
+        <div className="mb-2"><BackButton /></div>
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-medium text-gray-900">Inventory Management</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-medium text-gray-900">Inventory Management</h2>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={fixStockInformation}

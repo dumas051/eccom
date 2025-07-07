@@ -8,8 +8,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 const outfit = Outfit({ subsets: ['latin'], weight: ["300", "400", "500"] })
 
 export const metadata = {
-  title: "QuickCart - GreatStack",
-  description: "E-Commerce with Next.js ",
+  title: "ClicksandTypes",
+  description: "Premium Gaming Peripherals & Tech Accessories",
 };
 
 export default function RootLayout({ children }) {

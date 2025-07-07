@@ -18,7 +18,11 @@ export async function GET(request){
 
         await connectDB();
 
-        const orders = await Order.find({}).populate('address items.product')
+        const { searchParams } = new URL(request.url);
+        const includeArchived = searchParams.get('archived') === 'true';
+        const filter = includeArchived ? {} : { archived: { $ne: true } };
+
+        const orders = await Order.find(filter).populate('address items.product')
 
         return NextResponse.json({ success: true, orders});
 
